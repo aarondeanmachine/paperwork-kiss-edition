@@ -1,0 +1,425 @@
+/* Start, Editor and Home screens, plus the document page. */
+
+/* ---------- Start ---------- */
+.start {
+  background: var(--color-surface);
+}
+
+/* The wordmark sits at ~24% of the height (Exhibit A). The + is halfway between it and Exhibit A's 60%. */
+.start-wordmark {
+  position: absolute;
+  top: 23.6%;
+  left: 0;
+  right: 0;
+  translate: 0 -50%;
+  text-align: center;
+  font-family: var(--font-brand);
+  font-size: var(--text-brand);
+  font-weight: var(--weight-bold);
+  letter-spacing: -0.01em;
+  line-height: 1;
+}
+
+.start-add {
+  position: absolute;
+  top: 41.6%;
+  left: 50%;
+  translate: -50% -50%;
+}
+
+/* A quiet line resting just above the + tile (the tile is 48px tall, centered on the same point) */
+.start-tagline {
+  position: absolute;
+  top: 41.6%;
+  left: 0;
+  right: 0;
+  translate: 0 calc(-100% - 24px - var(--space-3));
+  text-align: center;
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+}
+
+/* ---------- Editor ---------- */
+.editor {
+  background: var(--color-canvas);
+}
+
+.topbar {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  height: 52px;
+  padding: 0 var(--space-3);
+  position: relative;
+  z-index: 20;
+}
+
+.topbar-group {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.topbar-title {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  text-align: center;
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+}
+
+.canvas {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 0 var(--space-3) 96px;
+  scrollbar-width: none;
+  overscroll-behavior: contain;
+}
+
+.canvas::-webkit-scrollbar {
+  display: none;
+}
+
+.canvas-pages {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+/* Bottom toolbar (Exhibit C) */
+.toolbar-dock {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: var(--space-4);
+  z-index: 20;
+  display: flex;
+  justify-content: center;
+  pointer-events: none;
+}
+
+.toolbar {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  padding: 6px;
+  border-radius: var(--radius-xl);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-ring), var(--shadow-md);
+  pointer-events: auto;
+}
+
+/* Icons are always full-strength; only the background shows the active tool. */
+.tool-btn {
+  display: grid;
+  place-items: center;
+  width: var(--control-lg);
+  height: var(--control-lg);
+  border-radius: 10px;
+  color: var(--color-text);
+  transition:
+    background var(--duration-fast),
+    transform var(--duration-fast) var(--ease-out);
+}
+
+.tool-btn:active {
+  transform: scale(0.92);
+}
+
+.tool-btn[aria-pressed='true'] {
+  background: var(--color-subtle);
+}
+
+.tool-btn:hover .plus-dot,
+.tool-btn[aria-expanded='true'] .plus-dot {
+  background: var(--color-hover);
+}
+
+/* ---------- Document page ---------- */
+.page-wrap {
+  flex: none;
+  position: relative;
+}
+
+.page {
+  /* Centered in its wrapper, then rotated and scaled about its own center. */
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  background: var(--color-surface);
+  box-shadow: var(--shadow-ring);
+  border-radius: 2px;
+}
+
+.page[data-static] {
+  overflow: hidden;
+}
+
+/* The page holding the selection sits above its neighbours while a box is dragged across. */
+.page-wrap[data-raised] {
+  z-index: 2;
+}
+
+.canvas[data-tool='text'] .page {
+  cursor: text;
+}
+
+.obj {
+  position: absolute;
+}
+
+.text-content {
+  --size: var(--doc-size-md);
+  --font-scale: 1;
+  min-height: 1lh;
+  font-family: var(--doc-font-formal);
+  font-size: calc(var(--size) * var(--font-scale));
+  line-height: var(--doc-line-height);
+  color: var(--doc-color-black);
+  white-space: pre-wrap;
+  overflow-wrap: break-word;
+  outline: none;
+}
+
+.text-content[data-size='sm'] {
+  --size: var(--doc-size-sm);
+}
+
+.text-content[data-size='lg'] {
+  --size: var(--doc-size-lg);
+}
+
+.text-content[data-size='xl'] {
+  --size: var(--doc-size-xl);
+  line-height: 1.25;
+}
+
+.text-content[data-font='handwritten'] {
+  --font-scale: var(--doc-font-scale-handwritten);
+  font-family: var(--doc-font-handwritten);
+}
+
+.text-content[data-font='typewriter'] {
+  font-family: var(--doc-font-typewriter);
+}
+
+.text-content ul {
+  margin: 0;
+  padding-left: 1.5em;
+  list-style: disc;
+}
+
+/* ---------- Live objects in the editor ---------- */
+.obj-live {
+  /* Swiping over an unselected object scrolls the page; a selected one drags instead. */
+  touch-action: pan-y;
+  user-select: none;
+  -webkit-user-select: none;
+  cursor: default;
+}
+
+.obj-live[data-selected] {
+  z-index: 1;
+  touch-action: none;
+  cursor: move;
+}
+
+.obj-live[data-editing] {
+  user-select: text;
+  -webkit-user-select: text;
+  cursor: text;
+}
+
+.canvas[data-tool='text'] .obj-text {
+  cursor: text;
+}
+
+/* Selection box and corner handles (Exhibit B) */
+.selection {
+  position: absolute;
+  /* Above anything the object draws over itself, so the handles are always reachable. */
+  z-index: 1;
+  inset: -3px -4px;
+  border: 1.5px solid var(--color-accent);
+  border-radius: 1px;
+  pointer-events: none;
+}
+
+.handle {
+  position: absolute;
+  width: 9px;
+  height: 9px;
+  border: 1.5px solid var(--color-accent);
+  border-radius: 2.5px;
+  background: var(--color-surface);
+  pointer-events: auto;
+  touch-action: none;
+  cursor: ew-resize;
+}
+
+.selection:not([data-resize='width']) .handle:is([data-corner='tl'], [data-corner='br']) {
+  cursor: nwse-resize;
+}
+
+.selection:not([data-resize='width']) .handle:is([data-corner='tr'], [data-corner='bl']) {
+  cursor: nesw-resize;
+}
+
+/* A larger invisible target so the handles are easy to grab with a finger */
+.handle::before {
+  content: '';
+  position: absolute;
+  inset: -9px;
+}
+
+.handle[data-corner='tl'] {
+  top: -5px;
+  left: -5px;
+}
+
+.handle[data-corner='tr'] {
+  top: -5px;
+  right: -5px;
+}
+
+.handle[data-corner='bl'] {
+  bottom: -5px;
+  left: -5px;
+}
+
+.handle[data-corner='br'] {
+  right: -5px;
+  bottom: -5px;
+}
+
+.measure-root {
+  position: absolute;
+  top: 0;
+  left: -9999px;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+/* ---------- Home ---------- */
+.home {
+  background: var(--color-canvas);
+}
+
+.home-bar {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  height: 52px;
+  padding: 0 var(--space-3) 0 var(--space-4);
+}
+
+.home-bar .home-title {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* The back arrow lines up with the grid's left edge. */
+.home-bar .icon-btn:first-child {
+  margin-left: -6px;
+}
+
+.home-title {
+  font-size: var(--text-lg);
+  font-weight: var(--weight-semibold);
+  letter-spacing: -0.01em;
+}
+
+/* The wordmark, set like the one on the Start screen, at title size */
+.home-title[data-brand] {
+  font-family: var(--font-brand);
+  font-weight: var(--weight-bold);
+}
+
+.file-grid {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  align-content: start;
+  gap: var(--space-4) var(--space-3);
+  padding: var(--space-1) var(--space-4) var(--space-5);
+}
+
+.file-card {
+  min-width: 0;
+}
+
+.file-thumb {
+  display: block;
+  width: 100%;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  background: var(--color-surface);
+  box-shadow: var(--shadow-ring);
+  transition: box-shadow var(--duration-fast);
+}
+
+.file-thumb:hover {
+  box-shadow:
+    var(--shadow-ring),
+    var(--shadow-sm);
+}
+
+.file-thumb .page {
+  box-shadow: none;
+  pointer-events: none;
+}
+
+.file-meta {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  padding: 6px 0 0 2px;
+}
+
+.file-text {
+  flex: 1;
+  min-width: 0;
+}
+
+.file-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+}
+
+.file-sub {
+  font-size: var(--text-xs);
+  color: var(--color-text-faint);
+}
+
+.file-meta .icon-btn {
+  flex: none;
+  width: var(--control-sm);
+  height: var(--control-sm);
+  color: var(--color-text-muted);
+}
+
+/* The empty slot where the next file would go */
+.file-slot {
+  display: grid;
+  place-items: center;
+  align-self: start;
+  aspect-ratio: 366 / 474;
+  border-radius: var(--radius-md);
+  border: 1px dashed var(--color-border-strong);
+}

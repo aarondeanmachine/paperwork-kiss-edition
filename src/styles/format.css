@@ -1,0 +1,266 @@
+/* The dark formatting toolbar, its option rows, and the Ask agent chat. */
+
+/* Anchored at the edge of the selection box: grows upward when above it, downward when below. */
+.format-anchor {
+  position: absolute;
+  z-index: 25;
+  display: flex;
+  flex-direction: column-reverse;
+  align-items: center;
+  gap: 6px;
+  width: max-content;
+  transform: translate(-50%, -100%);
+}
+
+.format-anchor[data-side='below'] {
+  flex-direction: column;
+  transform: translate(-50%, 0);
+}
+
+.format-anchor[data-align='start'] {
+  align-items: flex-start;
+}
+
+.format-anchor[data-align='end'] {
+  align-items: flex-end;
+}
+
+.format-bar {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  height: 36px;
+  padding: 0 3px;
+  border-radius: 10px;
+  background: var(--color-inverse);
+  color: var(--color-inverse-text);
+  font-size: var(--text-sm);
+  box-shadow: var(--shadow-md);
+}
+
+.format-row {
+  animation: row-in var(--duration-fast) var(--ease-out);
+}
+
+@keyframes row-in {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+}
+
+.format-anchor[data-side='below'] .format-row {
+  animation-name: row-in-below;
+}
+
+@keyframes row-in-below {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+}
+
+.format-btn {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-1);
+  min-width: 30px;
+  height: 30px;
+  padding: 0 7px;
+  border-radius: 7px;
+  color: var(--color-inverse-text);
+  white-space: nowrap;
+  transition: background var(--duration-fast);
+}
+
+.format-btn:hover {
+  background: var(--color-inverse-hover);
+}
+
+.format-btn[aria-pressed='true'],
+.format-btn[aria-expanded='true'] {
+  background: var(--color-inverse-active);
+}
+
+.format-btn > svg:last-child:not(:first-child) {
+  color: var(--color-inverse-text-muted);
+}
+
+.format-divider {
+  flex: none;
+  align-self: stretch;
+  width: 1px;
+  margin: 0 2px;
+  background: var(--color-inverse-border);
+}
+
+/* Fixed width, so the toolbar does not change size as the label changes */
+.format-size {
+  justify-content: space-between;
+  width: 78px;
+}
+
+.format-aa,
+.format-font {
+  font-family: var(--doc-font-formal);
+}
+
+.format-aa {
+  font-size: var(--text-md);
+}
+
+.format-aa[data-font='handwritten'],
+.format-font[data-font='handwritten'] {
+  font-family: var(--doc-font-handwritten);
+  font-size: calc(var(--text-md) * var(--doc-font-scale-handwritten));
+  line-height: 1;
+}
+
+.format-aa[data-font='typewriter'],
+.format-font[data-font='typewriter'] {
+  font-family: var(--doc-font-typewriter);
+}
+
+.swatch {
+  width: 16px;
+  height: 16px;
+  border-radius: var(--radius-full);
+  box-shadow: 0 0 0 1.5px var(--color-inverse-text-muted);
+}
+
+/* A selection with more than one color */
+.swatch[data-mixed] {
+  background: conic-gradient(
+    var(--doc-color-red),
+    var(--doc-color-orange),
+    var(--doc-color-green),
+    var(--doc-color-blue),
+    var(--doc-color-red)
+  );
+}
+
+.format-btn[aria-pressed='true'] .swatch {
+  box-shadow:
+    0 0 0 2px var(--color-inverse-active),
+    0 0 0 3.5px var(--color-inverse-text);
+}
+
+/* ---------- Ask agent ---------- */
+.format-bar.agent {
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0;
+  width: 318px;
+  height: auto;
+  padding: 0;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+
+.agent-field {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  height: 36px;
+  padding: 0 3px 0 10px;
+}
+
+.agent-field > svg {
+  flex: none;
+  color: var(--color-inverse-text-muted);
+}
+
+.agent-input {
+  flex: 1;
+  min-width: 0;
+  height: 100%;
+  padding: 0;
+  border: 0;
+  outline: none;
+  background: none;
+  color: var(--color-inverse-text);
+  font: inherit;
+  font-size: var(--text-md);
+}
+
+.agent-input::placeholder {
+  color: var(--color-inverse-text-muted);
+}
+
+.agent-send {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  border-radius: var(--radius-full);
+  background: var(--color-inverse-text);
+  color: var(--color-inverse);
+}
+
+.agent-log {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  max-height: 200px;
+  overflow-y: auto;
+  padding: var(--space-3);
+  border-bottom: 1px solid var(--color-inverse-border);
+  scrollbar-width: none;
+  animation: row-in var(--duration-base) var(--ease-out);
+}
+
+.agent-msg {
+  max-width: 86%;
+  font-size: var(--text-sm);
+  line-height: 1.45;
+  overflow-wrap: anywhere;
+}
+
+.agent-msg[data-from='user'] {
+  align-self: flex-end;
+  padding: 6px 10px;
+  border-radius: var(--radius-lg) var(--radius-lg) var(--radius-xs) var(--radius-lg);
+  background: var(--color-inverse-active);
+}
+
+.agent-msg[data-from='agent'] {
+  align-self: flex-start;
+  color: var(--color-inverse-text);
+}
+
+.agent-thinking {
+  display: flex;
+  gap: 3px;
+  padding: 6px 0;
+}
+
+.agent-thinking span {
+  width: 4px;
+  height: 4px;
+  border-radius: var(--radius-full);
+  background: var(--color-inverse-text-muted);
+  animation: thinking 900ms infinite ease-in-out;
+}
+
+.agent-thinking span:nth-child(2) {
+  animation-delay: 150ms;
+}
+
+.agent-thinking span:nth-child(3) {
+  animation-delay: 300ms;
+}
+
+@keyframes thinking {
+  0%,
+  60%,
+  100% {
+    opacity: 0.3;
+  }
+  30% {
+    opacity: 1;
+  }
+}

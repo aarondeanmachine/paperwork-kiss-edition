@@ -1,0 +1,453 @@
+/* Inserted objects (signature, photo, form field, signature request) and the dialog they are set up in. */
+
+/* ---------- Pictures ---------- */
+.obj-img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+/* The signature's white background drops out, so it sits on the text like ink. */
+.obj-img[data-kind='signature'] {
+  mix-blend-mode: multiply;
+}
+
+.obj-img[data-kind='photo'] {
+  border-radius: 2px;
+  object-fit: cover;
+}
+
+/* ---------- Line ---------- */
+/* The box is taller than the stroke, which runs along its middle. */
+.doc-line {
+  position: relative;
+  height: 8px;
+}
+
+.doc-line::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  right: 0;
+  left: 0;
+  height: 1px;
+  margin-top: -0.5px;
+  background: var(--doc-color-black);
+}
+
+/* A little extra room above and below, so a thin line is easy to tap with a finger */
+.obj-line::after {
+  content: '';
+  position: absolute;
+  inset: -4px 0;
+}
+
+/* ---------- Form field ---------- */
+.field {
+  display: flex;
+  align-items: center;
+  height: 100%;
+  padding: 0 6px;
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-xs);
+  background: var(--color-field);
+  color: var(--doc-color-black);
+  font-family: var(--doc-font-formal);
+  font-size: var(--doc-size-md);
+  overflow: hidden;
+}
+
+.field-text {
+  flex: 0 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/*
+ * Whose field it is, read left to right as "Text | Jane Doe": a short divider the height
+ * and color of the label, then the name in the same style as the signature block's name.
+ */
+.field-divider {
+  flex: none;
+  width: 1px;
+  height: 1em;
+  margin: 0 6px;
+  background: currentColor;
+}
+
+.field[data-empty] .field-divider {
+  color: var(--color-text-faint);
+}
+
+.field-signer {
+  flex: none;
+  max-width: 55%;
+  overflow: hidden;
+  color: var(--signer);
+  font-size: var(--doc-size-sm);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.field[data-empty] .field-text {
+  color: var(--color-text-faint);
+}
+
+.field-input {
+  flex: 1;
+  min-width: 0;
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  border: 0;
+  outline: none;
+  background: none;
+  color: inherit;
+  font: inherit;
+}
+
+/* Where supported, the input hugs what is typed, so the divider and name stay beside it. */
+@supports (field-sizing: content) {
+  .field-input:has(~ .field-divider) {
+    flex: 0 1 auto;
+    width: auto;
+    min-width: 2ch;
+    field-sizing: content;
+  }
+}
+
+.field-input::placeholder {
+  color: var(--color-text-faint);
+}
+
+/* Boxes that belong to another person are dashed and tinted with that person's color. */
+:is(.field, .sig-request)[data-tone] {
+  --signer: var(--color-signer-1);
+  --signer-soft: var(--color-signer-1-soft);
+}
+
+:is(.field, .sig-request)[data-tone='2'] {
+  --signer: var(--color-signer-2);
+  --signer-soft: var(--color-signer-2-soft);
+}
+
+:is(.field, .sig-request)[data-tone='3'] {
+  --signer: var(--color-signer-3);
+  --signer-soft: var(--color-signer-3-soft);
+}
+
+.field[data-tone] {
+  border: 1px dashed var(--signer);
+  background: var(--signer-soft);
+}
+
+/* ---------- Signature request ---------- */
+.sig-request {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 1px;
+  height: 100%;
+  padding: 0 var(--space-2);
+  border: 1px dashed var(--signer);
+  border-radius: var(--radius-sm);
+  background: var(--signer-soft);
+  color: var(--signer);
+  font-family: var(--doc-font-formal);
+  overflow: hidden;
+}
+
+.sig-request-title {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: var(--doc-size-md);
+  font-weight: var(--weight-semibold);
+  white-space: nowrap;
+}
+
+.sig-request-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: var(--doc-size-sm);
+}
+
+/* The + attached to a selected signer box, straddling its right edge */
+.signer-add {
+  position: absolute;
+  top: 50%;
+  right: -12px;
+  z-index: 2;
+  translate: 0 -50%;
+}
+
+.attach-btn {
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  border-radius: var(--radius-full);
+  background: var(--color-surface);
+  color: var(--color-text);
+  box-shadow: var(--shadow-ring), var(--shadow-md);
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+.attach-btn:hover,
+.attach-btn[aria-expanded='true'] {
+  background: var(--color-subtle);
+}
+
+.signer-add .menu {
+  min-width: 176px;
+  cursor: default;
+}
+
+/* ---------- Insert menu ---------- */
+.insert-menu .menu {
+  min-width: 176px;
+}
+
+/* ---------- Dialog ---------- */
+.scrim {
+  position: absolute;
+  inset: 0;
+  z-index: 40;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  /* Sits in the upper half so a phone keyboard does not cover the inputs. */
+  padding: 22% var(--space-4) 0;
+  background: var(--color-scrim);
+  animation: screen-in var(--duration-base) var(--ease-out);
+}
+
+.dialog {
+  width: 100%;
+  max-width: 326px;
+  padding: var(--space-3);
+  border-radius: var(--radius-xl);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-lg);
+  animation: dialog-in var(--duration-base) var(--ease-out);
+}
+
+@keyframes dialog-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+}
+
+.dialog-head {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  height: var(--control-md);
+  margin-bottom: var(--space-2);
+}
+
+.dialog-title {
+  flex: 1;
+  padding-left: var(--space-1);
+  font-size: var(--text-md);
+  font-weight: var(--weight-semibold);
+}
+
+.dialog-head .icon-btn:first-child {
+  margin-left: -4px;
+}
+
+.dialog-head .icon-btn {
+  width: var(--control-sm);
+  height: var(--control-sm);
+  color: var(--color-text-muted);
+}
+
+/* Two stacked choices */
+.option-list {
+  display: grid;
+  gap: var(--space-2);
+}
+
+.option {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 10px;
+  border: 1px solid var(--color-border);
+  border-radius: 10px;
+  text-align: left;
+  transition:
+    background var(--duration-fast),
+    border-color var(--duration-fast);
+}
+
+.option:hover {
+  border-color: var(--color-border-strong);
+  background: var(--color-subtle);
+}
+
+.option-icon {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: var(--control-md);
+  height: var(--control-md);
+  border-radius: var(--radius-full);
+  background: var(--color-subtle);
+}
+
+.option-text {
+  display: grid;
+  gap: 1px;
+}
+
+.option-title {
+  font-size: var(--text-md);
+  font-weight: var(--weight-medium);
+}
+
+.option-sub {
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+}
+
+/* Three side-by-side choices */
+.method-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-2);
+}
+
+.method {
+  display: grid;
+  justify-items: center;
+  gap: 6px;
+  padding: 14px var(--space-1) var(--space-3);
+  border: 1px solid var(--color-border);
+  border-radius: 10px;
+  font-size: var(--text-sm);
+  transition:
+    background var(--duration-fast),
+    border-color var(--duration-fast);
+}
+
+.method:hover {
+  border-color: var(--color-border-strong);
+  background: var(--color-subtle);
+}
+
+/* A pick-one pair, e.g. what a new person starts with */
+.choice-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-2);
+}
+
+.choice {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  height: var(--control-lg);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+  transition:
+    background var(--duration-fast),
+    border-color var(--duration-fast),
+    color var(--duration-fast);
+}
+
+.choice[aria-checked='true'] {
+  border-color: var(--color-text);
+  background: var(--color-subtle);
+  color: var(--color-text);
+}
+
+/* Form */
+.dialog-form {
+  display: grid;
+  gap: 10px;
+}
+
+.form-row {
+  display: grid;
+  gap: var(--space-1);
+}
+
+.form-label {
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+}
+
+.input {
+  width: 100%;
+  height: var(--control-lg);
+  padding: 0 10px;
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-md);
+  outline: none;
+  background: var(--color-surface);
+  color: var(--color-text);
+  font: inherit;
+  font-size: var(--text-md);
+  transition:
+    border-color var(--duration-fast),
+    box-shadow var(--duration-fast);
+}
+
+.input::placeholder {
+  color: var(--color-text-faint);
+}
+
+.input:focus {
+  border-color: var(--color-accent);
+  box-shadow: 0 0 0 3px var(--color-accent-soft);
+}
+
+.dialog-note {
+  font-size: var(--text-xs);
+  line-height: 1.45;
+  color: var(--color-text-muted);
+}
+
+.dialog-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--space-2);
+  margin-top: 2px;
+}
+
+.btn-secondary {
+  height: var(--control-sm);
+  padding: 0 var(--space-3);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-md);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+  transition: background var(--duration-fast);
+}
+
+.btn-secondary:hover {
+  background: var(--color-subtle);
+}
+
+.btn-primary:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.btn-primary:disabled:hover {
+  background: var(--color-inverse);
+}

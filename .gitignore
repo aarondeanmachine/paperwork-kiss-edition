@@ -1,0 +1,6 @@
+node_modules
+dist
+.DS_Store
+
+# Design references used while building the mockup; not part of the app.
+Exhibit *.png

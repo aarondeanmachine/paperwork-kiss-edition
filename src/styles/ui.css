@@ -1,0 +1,212 @@
+/* Shared UI pieces: icon buttons, the + tile, popover menus, toast. */
+
+/* Icon button */
+.icon-btn {
+  display: inline-grid;
+  place-items: center;
+  width: var(--control-md);
+  height: var(--control-md);
+  border-radius: var(--radius-md);
+  color: var(--color-text);
+  transition: background var(--duration-fast);
+}
+
+.icon-btn:hover,
+.icon-btn[aria-expanded='true'] {
+  background: var(--color-hover);
+}
+
+/* Primary button (small, dark) */
+.btn-primary {
+  height: var(--control-sm);
+  padding: 0 var(--space-3);
+  border-radius: var(--radius-md);
+  background: var(--color-inverse);
+  color: var(--color-inverse-text);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+  transition: background var(--duration-fast);
+}
+
+.btn-primary:hover,
+.btn-primary[aria-expanded='true'] {
+  background: var(--color-inverse-hover);
+}
+
+/* The + tile from Exhibit A: white rounded tile, soft shadow, + in a quiet circle */
+.add-tile {
+  display: grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-ring), var(--shadow-md);
+  transition: transform var(--duration-fast) var(--ease-out);
+}
+
+.add-tile:active {
+  transform: scale(0.96);
+}
+
+.plus-dot {
+  display: grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  border-radius: var(--radius-full);
+  background: var(--color-subtle);
+  color: var(--color-text);
+  transition: background var(--duration-fast);
+}
+
+.add-tile:hover .plus-dot,
+.add-tile[aria-expanded='true'] .plus-dot {
+  background: var(--color-hover);
+}
+
+/* Popover menu, anchored to its trigger */
+.popover-anchor {
+  position: relative;
+  display: inline-flex;
+}
+
+.menu {
+  position: absolute;
+  z-index: 30;
+  min-width: 196px;
+  padding: var(--space-1);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-ring), var(--shadow-lg);
+  animation: menu-in var(--duration-fast) var(--ease-out);
+}
+
+.menu[data-placement='bottom'] {
+  top: calc(100% + var(--space-2));
+  left: 50%;
+  translate: -50% 0;
+  transform-origin: top center;
+}
+
+.menu[data-placement='bottom-start'] {
+  top: calc(100% + var(--space-2));
+  left: 0;
+  transform-origin: top left;
+}
+
+.menu[data-placement='bottom-end'] {
+  top: calc(100% + var(--space-2));
+  right: 0;
+  transform-origin: top right;
+}
+
+.menu[data-placement='top'] {
+  bottom: calc(100% + var(--space-2));
+  left: 50%;
+  translate: -50% 0;
+  transform-origin: bottom center;
+}
+
+.menu[data-placement='top-end'] {
+  bottom: calc(100% + var(--space-2));
+  right: 0;
+  transform-origin: bottom right;
+}
+
+@keyframes menu-in {
+  from {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+}
+
+.menu-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  height: var(--control-lg);
+  padding: 0 10px;
+  border-radius: var(--radius-md);
+  font-size: var(--text-md);
+  text-align: left;
+  white-space: nowrap;
+  transition: background var(--duration-fast);
+}
+
+.menu-item:hover,
+.menu-item:focus-visible {
+  background: var(--color-subtle);
+  outline: none;
+}
+
+.menu-item svg {
+  flex: none;
+  color: var(--color-text-muted);
+}
+
+.menu-item-label {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.menu-item .menu-item-check {
+  color: var(--color-text);
+}
+
+.menu-item[data-tone='danger'],
+.menu-item[data-tone='danger'] svg {
+  color: var(--color-danger);
+}
+
+.menu-item[aria-disabled='true'] {
+  opacity: 0.38;
+  cursor: default;
+}
+
+.menu-item[aria-disabled='true']:hover {
+  background: none;
+}
+
+.menu-divider {
+  height: 1px;
+  margin: var(--space-1) 6px;
+  background: var(--color-border);
+}
+
+.menu-label {
+  overflow: hidden;
+  padding: 6px 10px 4px;
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Toast */
+.toast {
+  position: absolute;
+  left: 50%;
+  bottom: 84px;
+  z-index: 50;
+  translate: -50% 0;
+  padding: 7px var(--space-3);
+  border-radius: var(--radius-full);
+  background: var(--color-inverse);
+  color: var(--color-inverse-text);
+  font-size: var(--text-sm);
+  white-space: nowrap;
+  box-shadow: var(--shadow-md);
+  pointer-events: none;
+  animation: toast-in var(--duration-base) var(--ease-out);
+}
+
+@keyframes toast-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+}

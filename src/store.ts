@@ -2,7 +2,7 @@ import { create } from 'zustand'
 import { buildSample } from './data/sample'
 import { isEmptyHtml } from './lib/caret'
 import { uid } from './lib/id'
-import { PAGE_HEIGHT, PAGE_MARGIN, PAGE_WIDTH } from './lib/layout'
+import { PAGE_HEIGHT, PAGE_MARGIN, PAGE_WIDTH, layoutBlocks } from './lib/layout'
 import type { DocFile, DocObject, Folder, NewObject, Page, Screen, TextObject, Tool } from './types'
 
 const SAMPLE_NAME = 'culture_manifesto'
@@ -37,6 +37,10 @@ interface AppState {
   openSample: () => Promise<void>
   /** Home's +: another sample file joins the list without leaving Home. */
   addSampleFile: () => Promise<void>
+  /** A new file with one empty page, opened in the editor. */
+  newBlankFile: () => void
+  /** A new file "generated" from a prompt, opened in the editor. The mockup writes a canned reply. */
+  generateFile: (prompt: string) => Promise<void>
   copyFile: (id: string) => void
   addFolder: (name: string) => string
   /** Removes a folder. Its files go back to Home. */
@@ -143,6 +147,23 @@ async function createSampleFile(existing: DocFile[]): Promise<DocFile> {
   return { id: uid('file'), name, pages, objects }
 }
 
+/** What a generated document says. Nothing is really generated in the mockup. */
+const GENERATED_BODY =
+  'I am just a mockup, but in production I will be able to write this document for you from your prompt.'
+
+function escapeHtml(text: string): string {
+  return text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+}
+
+/** A name not yet taken: "Untitled", then "Untitled 2", and so on. */
+function uniqueName(base: string, existing: DocFile[]): string {
+  const taken = new Set(existing.map((file) => file.name))
+  if (!taken.has(base)) return base
+  let count = 2
+  while (taken.has(`${base} ${count}`)) count += 1
+  return `${base} ${count}`
+}
+
 export const useStore = create<AppState>((set, get) => {
   const activeFile = () => {
     const state = get()
@@ -179,6 +200,30 @@ export const useStore = create<AppState>((set, get) => {
     addSampleFile: async () => {
       const file = await createSampleFile(get().files)
       set((state) => ({ files: [...state.files, file] }))
+    },
+
+    newBlankFile: () => {
+      const file: DocFile = {
+        id: uid('file'),
+        name: uniqueName('Untitled', get().files),
+        pages: [{ id: uid('page'), height: PAGE_HEIGHT, rotation: 0 }],
+        objects: [],
+      }
+      set((state) => ({ files: [...state.files, file] }))
+      get().openFile(file.id)
+    },
+
+    generateFile: async (prompt) => {
+      await fontsReady()
+      const request = prompt.trim()
+      // The prompt becomes the heading, with the canned reply as the document under it.
+      const { pages, objects } = layoutBlocks([
+        { role: 'title', size: 'xl', html: `<b>${escapeHtml(request)}</b>` },
+        { role: 'body', size: 'md', html: GENERATED_BODY },
+      ])
+      const file: DocFile = { id: uid('file'), name: uniqueName('Generated document', get().files), pages, objects }
+      set((state) => ({ files: [...state.files, file] }))
+      get().openFile(file.id)
     },
 
     copyFile: (id) => {

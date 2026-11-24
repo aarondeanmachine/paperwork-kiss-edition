@@ -14,8 +14,20 @@ interface Message {
 /**
  * The toolbar's Ask agent mode: a chat field that grows into a small chat once
  * the first message is sent. Every message gets the same canned reply.
+ * In the editor it replaces the formatting toolbar; on Home it sits at the foot of the screen.
  */
-export function AgentChat({ onClose, onResize }: { onClose: () => void; onResize: () => void }) {
+interface AgentChatProps {
+  /** The x: in the editor it returns to the toolbar, on Home it clears the conversation. */
+  onClose: () => void
+  /** Called when the chat changes height, so whatever positions it can re-anchor. */
+  onResize?: () => void
+  /** Take the keyboard as soon as it appears (the editor does; a resting bar on Home does not). */
+  autoFocus?: boolean
+  /** Show the x before a conversation has started (the editor needs it to get back to the toolbar). */
+  closeWhenEmpty?: boolean
+}
+
+export function AgentChat({ onClose, onResize, autoFocus = true, closeWhenEmpty = true }: AgentChatProps) {
   const [draft, setDraft] = useState('')
   const [messages, setMessages] = useState<Message[]>([])
   const [thinking, setThinking] = useState(false)
@@ -25,14 +37,16 @@ export function AgentChat({ onClose, onResize }: { onClose: () => void; onResize
   const nextId = useRef(0)
 
   useEffect(() => {
-    inputRef.current?.focus({ preventScroll: true })
+    if (autoFocus) inputRef.current?.focus({ preventScroll: true })
     return () => window.clearTimeout(timer.current)
+    // Only on mount and unmount.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   // Keep the newest message in view, and let the toolbar re-anchor as the chat grows.
   useEffect(() => {
     logRef.current?.scrollTo({ top: logRef.current.scrollHeight })
-    onResize()
+    onResize?.()
   }, [messages, thinking, onResize])
 
   const send = (event: FormEvent) => {
@@ -92,9 +106,11 @@ export function AgentChat({ onClose, onResize }: { onClose: () => void; onResize
             <ArrowUp size={14} strokeWidth={2} aria-hidden />
           </button>
         )}
-        <button type="button" className="format-btn" aria-label="Close agent" onClick={onClose}>
-          <X size={16} strokeWidth={1.5} aria-hidden />
-        </button>
+        {(closeWhenEmpty || started) && (
+          <button type="button" className="format-btn" aria-label="Close agent" onClick={onClose}>
+            <X size={16} strokeWidth={1.5} aria-hidden />
+          </button>
+        )}
       </form>
     </div>
   )
